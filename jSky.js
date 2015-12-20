@@ -5,14 +5,31 @@ var SKY = SKY || {}
 //http://www.astro-phys.com/api/de406/states?date=1000-1-20&bodies=mars
 
 
-var url = 'http://www.astro-phys.com/api/de406/states?date=2003-09-25T10:49&bodies=sun,moon';
+var url = 'http://www.astro-phys.com/api/de406/states?date=2003-09-25T10:49&bodies=sun,mercury,venus,moon,mars,jupiter,saturn,uranus,neptune,pluto';
 var url2 = 'http://www.astro-phys.com/api/de406/states?date=2452907.95094&bodies=sun,moon' 
 
-$.getJSON(url, {bodies: 'mercury'}, function(data) {
-  var p = data.results.mercury[0];
-  var v = data.results.mercury[1];
-  console.log('Position:\nx='+p[0]+'\ny='+p[1]+'\nz='+p[2]);
-  console.log('Velocity:\nx='+v[0]+'\ny='+v[1]+'\nz='+v[2]);
+//{"date": 2452907.9506899999, "results": {"mercury": [[19463872.423888482, 37421874.914288841, 18057065.658873655], [-4675250.709463357, 1510708.0421961588, 1291774.8804996102]], "sun": [[445680.99614797306, -469235.66244900582, -210842.90240303476], [744.82291327944824, 819.61886509338103, 328.19636325781693]], "neptune": [[3013896576.9082661, -3065887420.0188046, -1329919054.9011033], [345661.05763426982, 296821.37208586052, 112884.98859413425]], "pluto": [[-847267801.01731074, -4375466103.3217125, -1110169105.1944985], [470591.16667198745, -108394.18506923175, -175613.79806991192]], "moon": [[150038161.54281148, 4167913.9208064275, 1829889.7135109843], [-135240.5546763757, 2270459.9097901117, 979393.06841622444]], "jupiter": [[-707055433.67959797, 346003510.40025777, 165522646.76293522], [-552014.71571031539, -868059.06901469, -358641.91154183605]], "uranus": [[2624606445.661747, -1312116639.2143543, -611796043.99953485], [279795.70566095895, 448306.09916104906, 192389.589152467]], "mars": [[205956239.32522061, -22946826.715117842, -16074034.79773663], [353298.75677190966, 2054186.3730860082, 932621.57810260833]], "venus": [[-96205517.889507368, -46440660.771915838, -14776685.651497068], [1325112.4614611601, -2453403.5819634269, -1187635.3085047482]], "saturn": [[-142468154.55159792, 1239077249.1837988, 517920159.6476981], [-874424.5127583039, -96974.70034699222, -2410.359462898391]]}, "unit": "km"}
+
+$.getJSON(url, function(data) {
+  console.log(data);
+  for( var body in data.results){
+  	  console.log( body )
+	  
+	  var p   = Object.keys(body);
+	  for (var item in p ){
+	  	console.log( item );
+
+	  }
+	  var pos = Object.keys(p)[0];
+	  
+
+	  console.log( "p--> " + p );
+	  console.log( "pos--> " + pos );
+	  
+	  var v = Object.keys(body)[1];
+	  //console.log('Position:\nx='+p[0]+'\ny='+p[1]+'\nz='+p[2]);
+	  //console.log('Velocity:\nx='+v[0]+'\ny='+v[1]+'\nz='+v[2]);
+  }
 });
 
 
@@ -47,7 +64,7 @@ SKY = {
 	//day is a fraction
 	getJulianDay: function(year, month, day){
 		//return jd
-	}
+	},
 	calculateLocalCoordinates: function ( body ) {		
 		var ans = coord_to_horizon (item.ra, item.dec)
 		item.prototype.az  = ans[0];
@@ -90,7 +107,7 @@ SKY = {
 	// returns: time in degrees
 	mean_sidereal_time: function ()
 	{
-		var now = this.utc;
+		var now    = this.utc;
 	    var year   = now.getUTCFullYear();
 	    var month  = now.getUTCMonth() + 1;
 	    var day    = now.getUTCDate();
@@ -131,7 +148,7 @@ SKY = {
 		this.ra 	   = ra;
 		this.dec 	   = dec;	
 		this.magnitude = magnitude;		
-	}
+	},
 
 	Star: function(name, ra, dec, magnitude, color){
 		this.name      = name;
@@ -148,15 +165,17 @@ var month = 11;
 var day = 12.1213;
 
 
-var hours = (day - Math.floor(day)) * 24;
-var minutes = hours-Math.floor(hours) * 60;
-var seconds = minutes-Math.floor(minutes) * 60;
-var miliseconds = (seconds- Math.floor(seconds))*1000;
+var hours 		 = (day - Math.floor(day)) * 24;
+var minutes      = hours-Math.floor(hours) * 60;
+var seconds      = minutes-Math.floor(minutes) * 60;
+var milliseconds = (seconds- Math.floor(seconds))*1000;
 
 var utc = new Date(year, month, 
 					Math.floor(day), Math.floor(hours), 
 					Math.floor(minutes), Math.floor(seconds), 
-					miliseconds );
+					milliseconds );
+/*
+var SKY = Object.create(SKY);
 
 SKY.objects.add( new SKY.Object("Sun", 12, 12, -27) );
 //...
@@ -170,3 +189,4 @@ model.update();
 SKY.loader = function(){
 
 }
+*/
