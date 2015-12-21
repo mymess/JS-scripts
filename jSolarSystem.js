@@ -5,43 +5,74 @@ var SKY = SKY || {}
 //http://www.astro-phys.com/api/de406/states?date=1000-1-20&bodies=mars
 
 
-//var url = 'http://www.astro-phys.com/api/de406/states?date=2003-09-25T10:49&bodies=sun,mercury,venus,moon,mars,jupiter,saturn,uranus,neptune,pluto';
-//var url2 = 'http://www.astro-phys.com/api/de406/states?date=2452907.95094&bodies=sun,mercury,venus,moon,mars,jupiter,saturn,uranus,neptune,pluto'; 
+var url = 'http://www.astro-phys.com/api/de406/states?date=2003-09-25T10:49&bodies=sun,mercury,venus,moon,mars,jupiter,saturn,uranus,neptune,pluto';
+var url2 = 'http://www.astro-phys.com/api/de406/states?date=2452907.95094&bodies=sun,mercury,venus,moon,mars,jupiter,saturn,uranus,neptune,pluto'; 
 
 
-var url = 'http://api.nginov.com/shared/ws/astro/?lat=39.43&lon=.45&&alt=0&y=2015&m=02&d=17&h=11&i=15&s=00&out=json&callback=?'
 
 
-//var data = {"astropositions":{"generated":"2015-12-21 09:20:40","copyright":"NGinov ltd","author":"philippe GERARD","references":"swiss ephemeris","api":"http:\/\/api.nginov.com\/","informations":{"geoposition":{"unit":"degree","latitude":39.43,"longitude":0.45,"altitude":0},"calculation":{"mode":"UTC","date":"2015-02-17 11:15:00","stamp":"20150217111500"},"day":{"sunrise":"08:15:15","zenith":"12:58:07","sunset":"17:40:59","daylight":{"duration":"9:25:44"},"night":{"duration":"14:30:20"},"twilight":{"civil":"07:45:19\/18:10:55","nautical":"07:11:46\/18:44:28","astronomical":"06:39:14\/19:17:00"}}},"positions":[{"index":"0","name":"Sun","longitude":"328.4196358","latitude":"-0.0019922","rectascension":"330.5766535","declination":"-12.0232358","azimuth":"325.7372291","height":"31.7700950","speed":"0.9995451","house":"302.9971942","housenumber":"11.0999065"},{"index":"1","name":"Moon","longitude":"306.1352035","latitude":"3.8417119","rectascension":"307.5283670","declination":"-15.0109326","azimuth":"352.6011327","height":"35.2472785","speed":"10.3028679","house":"277.2815272","housenumber":"10.2427176"},{"index":"2","name":"Mercury","longitude":"303.0946584","latitude":"1.3090919","rectascension":"305.0709025","declination":"-18.1881182","azimuth":"355.7367810","height":"32.2728679","speed":"0.5628244","house":"274.5934316","housenumber":"10.1531144"},{"index":"3","name":"Venus","longitude":"355.7969617","latitude":"-1.1456751","rectascension":"356.5976633","declination":"-2.7218677","azimuth":"295.8321283","height":"24.1314303","speed":"1.2298557","house":"326.7324838","housenumber":"11.8910828"},{"index":"4","name":"Mars","longitude":"358.0126380","latitude":"-0.6247939","rectascension":"358.4248794","declination":"-1.3635548","azimuth":"293.3656722","height":"23.8146379","speed":"0.7685302","house":"327.8685489","housenumber":"11.9289516"},{"index":"5","name":"Jupiter","longitude":"136.2352105","latitude":"0.9764811","rectascension":"138.9964675","declination":"16.8992463","azimuth":"160.0762251","height":"-31.2893097","speed":"-0.1250254","house":"111.1127097","housenumber":"4.7037570"},{"index":"6","name":"Saturn","longitude":"244.3972354","latitude":"2.0264648","rectascension":"242.8183620","declination":"-19.0254257","azimuth":"54.9178645","height":"10.0746364","speed":"0.0409553","house":"198.4448549","housenumber":"7.6148285"},{"index":"7","name":"Uranus","longitude":"13.9176630","latitude":"-0.6343729","rectascension":"13.0560255","declination":"4.9044887","azimuth":"277.9306551","height":"17.1538624","speed":"0.0440238","house":"338.6904568","housenumber":"12.2896819"},{"index":"8","name":"Neptune","longitude":"336.9324680","latitude":"-0.7312275","rectascension":"338.9322718","declination":"-9.6439048","azimuth":"316.0669931","height":"29.7668440","speed":"0.0377316","house":"311.3446419","housenumber":"11.3781547"},{"index":"9","name":"Pluto","longitude":"284.7024410","latitude":"2.1040809","rectascension":"285.7138495","declination":"-20.5324945","azimuth":"16.5806012","height":"28.2971555","speed":"0.0268487","house":"250.5624957","housenumber":"9.3520832"}]},"moon":{"phase":{"dynamic":"dsc","value":27.702609141486,"total":29.530588,"percent":93.809879916667,"illumination":6.1901200833333}}}
-/*
-for( var i=0;i< data.astropositions.positions.length; ++i ){
-	var body = data.astropositions.positions[i];
-  	console.log( body.name )
-	console.log( "RA: " + body.rectascension ); 
-	console.log( "Dec: " + body.declination ) ;
-	console.log( "Az: " + body.azimuth ) ;
-	console.log( "Alt: " + body.height ) ;
 
+var data = {"date": 2452907.9506899999, "results": {"mercury": [[19463872.423888482, 37421874.914288841, 18057065.658873655], [-4675250.709463357, 1510708.0421961588, 1291774.8804996102]], "sun": [[445680.99614797306, -469235.66244900582, -210842.90240303476], [744.82291327944824, 819.61886509338103, 328.19636325781693]], "neptune": [[3013896576.9082661, -3065887420.0188046, -1329919054.9011033], [345661.05763426982, 296821.37208586052, 112884.98859413425]], "pluto": [[-847267801.01731074, -4375466103.3217125, -1110169105.1944985], [470591.16667198745, -108394.18506923175, -175613.79806991192]], "moon": [[150038161.54281148, 4167913.9208064275, 1829889.7135109843], [-135240.5546763757, 2270459.9097901117, 979393.06841622444]], "jupiter": [[-707055433.67959797, 346003510.40025777, 165522646.76293522], [-552014.71571031539, -868059.06901469, -358641.91154183605]], "uranus": [[2624606445.661747, -1312116639.2143543, -611796043.99953485], [279795.70566095895, 448306.09916104906, 192389.589152467]], "mars": [[205956239.32522061, -22946826.715117842, -16074034.79773663], [353298.75677190966, 2054186.3730860082, 932621.57810260833]], "venus": [[-96205517.889507368, -46440660.771915838, -14776685.651497068], [1325112.4614611601, -2453403.5819634269, -1187635.3085047482]], "saturn": [[-142468154.55159792, 1239077249.1837988, 517920159.6476981], [-874424.5127583039, -96974.70034699222, -2410.359462898391]]}, "unit": "km"}
+
+for( var body in data.results){
+  	  console.log( body )
+	  var p   = data.results[body][0] ;
+	  var v   = data.results[body][1] ;
+
+	  var x = p[0];
+	  var y = p[1];
+	  var z = p[2];
+
+
+
+	  console.log('Position:\nx='+p[0]+'\ny='+p[1]+'\nz='+p[2]);
+	  console.log('Velocity:\nx='+v[0]+'\ny='+v[1]+'\nz='+v[2]);
+
+	  // for (var item in p ){
+
+	  // 	var nums = Object.keys(item);
+
+	  // 	for( var num in nums ) {
+	  // 	console.log( item );
+	  // 	console.log( p[item] )
+
+	  // 	}
+	  // }
+	  //var pos = Object.keys(p)[0];
+	  
+
+	  // console.log( "p--> " + p );
+	  // console.log( "pos--> " + pos );
 }
-*/
+/*
 $.getJSON(url, function(data) {
-  console.log( data );
-  for( var i=0;i< data.astropositions.positions.length; ++i ){
-	var body = data.astropositions.positions[i];
-  	console.log( body.name )
-	console.log( "RA: " + body.rectascension ); 
-	console.log( "Dec: " + body.declination ) ;
-	console.log( "Az: " + body.azimuth ) ;
-	console.log( "Alt: " + body.height ) ;
-	}
-  
+  console.log(data);
+  for( var body in data.results){
+  	  console.log( body )
+	  
+	  var p   = Object.keys(body);
+	  for (var item in p ){
+	  	console.log( item );
+
+	  }
+	  var pos = Object.keys(p)[0];
+	  
+
+	  console.log( "p--> " + p );
+	  console.log( "pos--> " + pos );
+	  
+	  var v = Object.keys(body)[1];
+	  //console.log('Position:\nx='+p[0]+'\ny='+p[1]+'\nz='+p[2]);
+	  //console.log('Velocity:\nx='+v[0]+'\ny='+v[1]+'\nz='+v[2]);
+  }
 });
+*/
 
 
-SKY = {
+SOLAR_SYSTEM = {
 
 	bodies: [],
-	stars: [],
+	
 
 	init: function(utc, lon, lat){
 		
@@ -64,10 +95,7 @@ SKY = {
 	update: function(){
 		for(var i=0; i<this.bodies.length; i++ ){
 			this.calculateLocalCoordinates( this.bodies[i] )			
-		}
-		for(var i=0; i<this.stars.length; i++){
-			this.calculateLocalCoordinates( this.stars[i] )
-		}
+		}		
 	},
 
 	
@@ -236,33 +264,18 @@ SKY = {
 				var y = pos[1];
 				var z = pos[2];
 
-				//var ans = this.calculatePolarCoordinates(x, y, z);
-				ra  = Math.atan2(y, x)*SKY.RAD2DEG + 180;
-				dec = Math.atan2(z, Math.sqrt( x*x + y*y ))*SKY.RAD2DEG ;
-
-				var newBody = new SKY.Body( body, ra, dec );
+				
+				var newBody = new SOLAR_SYSTEM.Body( body );
 				newBody.x = x;
 				newBody.y = y;
 				newBody.z = z;
 				newBody.distance = Math.sqrt( x*x + y*y + z*z );
 				console.log( newBody );
 				console.log( SKY.bodies )
-				//SKY.bodies.add[ newBody ];
+				//SOLAR_SYSTEM.bodies.add[ newBody ];
 			}
 
 		});
-	},
-
-	//input: rectangular coordinates X, Y, Z
-	//output: array containing RA and declination in degrees, and distance in km
-	calculatePolarCoordinates: function(x, y, z){
-		var ra = Math.atan2(y, x);
-		var dec = Math.atan2(z, Math.sqrt( x*x + y*y ));
-		var distance = Math.sqrt( x*x + y*y + z*z );
-
-		var ans = [ra*this.RAD2DEG, dec*this.RAD2DEG, distance];
-
-		return ans;
 	},
 
 	log: function(){
@@ -290,14 +303,14 @@ var utc = new Date(year, month,
 					Math.floor(minutes), Math.floor(seconds), 
 					milliseconds );
 
-//var SKY = Object.create(SKY);
+//var SOLAR_SYSTEM = Object.create(SOLAR_SYSTEM);
 
-//SKY.objects.add( new SKY.Object("Sun", 12, 12, -27) );
+//SOLAR_SYSTEM.objects.add( new SOLAR_SYSTEM.Object("Sun", 12, 12, -27) );
 //...
 
-//SKY.stars.add( new SKY.Star("..."))
+//SOLAR_SYSTEM.stars.add( new SOLAR_SYSTEM.Star("..."))
 
-//var model = SKY.init(utc, 0.12, 39.45 );
-//model.update();
-//model.log();
+var model = SOLAR_SYSTEM.init(utc, 0.12, 39.45 );
+model.update();
+model.log();
 
