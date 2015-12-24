@@ -212,7 +212,7 @@ SKY = {
 		
 
 		$.getJSON(url, function(data) {
-			SKY.bodies = data.astropositions.positions;
+			SKY.bodies = data.astropositions.positions;			
 		});		
 	},
 
@@ -234,6 +234,18 @@ SKY = {
 			console.log( "Dec -> " + body.dec );
 			
 		}
+	},
+
+	getLog: function(){
+		var s= '';
+		for( var i =0; i< this.bodies.length; ++i){
+			var body = this.bodies[i];
+			s += "\nName --> " + body.name;
+			s += "\nAz: " + body.azimuth;
+			s += "\nAlt: " + body.height;
+			s += "\n---- ";
+		}
+		return s;
 	}
 }
 
@@ -260,9 +272,19 @@ var utc = new Date(year, month,
 
 //SKY.stars.add( new SKY.Star("..."))
 
-var model = SKY.init(utc, 0.12, 39.45 );
-//model.loadBodiesData();
-model.loadBodiesData();
+
+$(document).ready(function(){
+	WEBLOGGER.init();
+
+	SKY.init(utc, 0.12, 39.45 );
+
+	//SKY.loadBodiesData();
+
+	//WEBLOGGER.log( starData );
+	WEBLOGGER.error( "ERROR: system failure." );
+	WEBLOGGER.warn( "WARNING: system failure." );
+	
+});
 //model.update();
 //model.log();
 //console.log( "Hola {0}, {1}".format("joan", "qué tal?") );
