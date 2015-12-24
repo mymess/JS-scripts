@@ -8,7 +8,8 @@ WEBLOGGER = {
 		this.div.style.fontSize= "16px";
 		this.div.style.backgroundColor = 'black';
 		this.div.width = '100%';
-		this.div.height = '100%';
+		this.div.height = '1000px';
+
 		$('body').append(this.div);
 	},
 
@@ -18,9 +19,7 @@ WEBLOGGER = {
 		var s = '';
 		if (typeof o==='string'){
 			s = o.replace(new RegExp("\n", 'gi'), "</br>")		
-			console.log( s )			
-		}else if( Object.prototype.toString.call( o ) === '[object Array]' ) {
-			s = JSON.stringify( o ); 
+			console.log( s )					
 		}else if (typeof o==='object') {
 			//s = o.replace(new RegExp("\n", 'gi'), "</br>");
 			s = JSON.stringify( o ); 
@@ -30,31 +29,37 @@ WEBLOGGER = {
 		this.br();
 	},
 
-	warn: function(o){
-		var span =  document.createElement('span');
-		span.style.color='yellow';
+	warn: function(o){		
 		if (typeof o==='string'){
-			s = o.replace(new RegExp("\n", 'gi'), "</br>")		
-			console.log( s )			
+			var chunks = o.split("\n")
+			chunks[0] = '>'.concat(chunks[0]);
+			for (var i=0; i< chunks.length; ++i){
+				var chunk = chunks[i];
+				var cSpan =  document.createElement('span');
+				cSpan.style.color='yellow';
+				cSpan.textContent = chunk;
+				this.div.appendChild(cSpan);
+				this.br();
+			}
+			
 		}
-		span.textContent = s;
-		
-		this.div.appendChild(span);
-		this.br();
 	},
 
 	error: function(o){
-		var span =  document.createElement('span');
-		span.style.color='red';
-
 		if (typeof o==='string'){
-			s = o.replace(new RegExp("\n", 'gi'), "</br>")		
-			console.log( s )			
+			var chunks = o.split("\n")
+			chunks[0] = '>'.concat(chunks[0]);
+			
+			for (var i=0; i< chunks.length; ++i){
+				var chunk = chunks[i];
+				var cSpan =  document.createElement('span');
+				cSpan.style.color='red';
+				cSpan.textContent = chunk;
+				this.div.appendChild(cSpan);
+				this.br();
+			}
+			
 		}
-		span.textContent = s;
-
-		this.div.appendChild(span);		
-		this.br();
 	},
 
 	br: function(){

@@ -212,7 +212,9 @@ SKY = {
 		
 
 		$.getJSON(url, function(data) {
-			SKY.bodies = data.astropositions.positions;			
+			SKY.bodies = data.astropositions.positions;	
+			WEBLOGGER.warn( SKY.getLog() );		
+			WEBLOGGER.error( SKY.getLog() );		
 		});		
 	},
 
@@ -281,8 +283,8 @@ $(document).ready(function(){
 	//SKY.loadBodiesData();
 
 	//WEBLOGGER.log( starData );
-	WEBLOGGER.error( "ERROR: system failure." );
-	WEBLOGGER.warn( "WARNING: system failure." );
+	//WEBLOGGER.error( "ERROR: system failure." );
+	//WEBLOGGER.warn( "WARNING: system failure." );
 	
 });
 //model.update();
