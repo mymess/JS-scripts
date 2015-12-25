@@ -30,7 +30,7 @@ SKY = {
 		this.HOURS2DEG = 15;
 		this.latRad = this.lat*this.DEG2RAD;
 
-		this.loadBodiesData();
+		//this.loadBodiesData();
 		this.bodies = [];
 		this.stars = starData;
 
@@ -106,10 +106,12 @@ SKY = {
 		item.prototype.alt = ans[1];
 	},
 
+	//input: RA in hours, dec in degrees
+	//output: Array [az, alt]
 	coord_to_horizon: function ( ra, dec )
 	{
 	    // compute hour angle in degrees
-	    var ha = mean_sidereal_time( ) - ra * this.HOURS2DEG;
+	    var ha = this.mean_sidereal_time( ) - ra * this.HOURS2DEG;
 	    if (ha < 0) ha = ha + 360;
 
 	    // convert degrees to radians
@@ -212,9 +214,7 @@ SKY = {
 		
 
 		$.getJSON(url, function(data) {
-			SKY.bodies = data.astropositions.positions;	
-			WEBLOGGER.warn( SKY.getLog() );		
-			WEBLOGGER.error( SKY.getLog() );		
+			SKY.bodies = data.astropositions.positions;				
 		});		
 	},
 
@@ -252,9 +252,23 @@ SKY = {
 }
 
 
+
+
+
+//sirius
+// VALENCIA LON/LAT: 0º 23' 24"   39º 28' 48"
+// TIME 25-12-2015  22:51:24
+// AZ: 138º 17' 01"  
+// ALT: 22º 34' 17"
+//              StarID,  HIP,      HD,     HR,   Gliese,    BayerFlamsteed,ProperName,RA,         Dec,            Distance,           PMRA,       PMDec,      RV,     Mag,       AbsMag,        Spectrum, ColorIndex, X,Y,Z,VX,VY,VZ
+var sirius = ["32263", "32349", "48915", "2491", "Gl 244  A", "9Alp CMa", "Sirius", "6.7525694", "-16.71314306", "2.63706125893305", "-546.01", "-1223.08", "-9.4", "-1.44", "1.45439890714285", "A0m...", "0.009", "-0.49439", "2.4768", "-0.75836", "9.527e-06", "-1.2072e-05", "-1.221e-05"];
+
+var ra = sirius[7];
+var dec = sirius[8];
+console.log( dec )
 var year = 2015;
 var month = 12;
-var day = 20.1213;
+var day = 25 + 21/24 + 51/(24*60) + 24/86400;
 
 
 var hours 		 = (day - Math.floor(day)) * 24;
@@ -262,29 +276,54 @@ var minutes      = hours-Math.floor(hours) * 60;
 var seconds      = minutes-Math.floor(minutes) * 60;
 var milliseconds = (seconds- Math.floor(seconds))*1000;
 
+day = 25;
+hours = 20;
+minutes = 51;
+seconds = 24;
+milliseconds = 0;
+
 var utc = new Date(year, month, 
 					Math.floor(day), Math.floor(hours), 
 					Math.floor(minutes), Math.floor(seconds), 
 					milliseconds );
 
-//var SKY = Object.create(SKY);
 
-//SKY.objects.add( new SKY.Object("Sun", 12, 12, -27) );
-//...
-
-//SKY.stars.add( new SKY.Star("..."))
+var lon = 23/60 + 24/3600;
+var lat = 39+28/60 + 48/3600; 
 
 
 $(document).ready(function(){
 	WEBLOGGER.init();
 
-	SKY.init(utc, 0.12, 39.45 );
+	SKY.init(utc, lon, lat );
 
 	//SKY.loadBodiesData();
+	var azAlt = SKY.coord_to_horizon( ra, dec );
 
+	var minRA = (ra - Math.floor(ra))*60;
+	var secRA = (minRA - Math.floor(minRA))*60;
+
+	var minDec = (dec - Math.floor(dec))*60;
+	var secDec = (minDec - Math.floor(minDec))*60;
+
+	WEBLOGGER.warn(" RA --> {0}h {1}m {2}s\" ".format(Math.floor(ra), Math.floor(minRA), secRA ) );
+	WEBLOGGER.warn(" Dec -->  {0}º {1}' {2}".format(Math.floor(dec), Math.floor(minDec), secDec ));
+
+
+	WEBLOGGER.warn(" AZ --> " +azAlt[0] );
+	WEBLOGGER.warn(" Alt --> "+azAlt[1] );
+
+
+// AZ: 138º 17' 01"  
+// ALT: 22º 34' 17"
+	var azS = 138 + 17/60 + 1/3600;
+	var alS = 22 + 34/60 +17/3600;
+	WEBLOGGER.error(" AZ Stellarium --> " + azS );
+	WEBLOGGER.error(" Alt Stellarium --> " + alS );
 	//WEBLOGGER.log( starData );
 	//WEBLOGGER.error( "ERROR: system failure." );
 	//WEBLOGGER.warn( "WARNING: system failure." );
+	
 	
 });
 //model.update();

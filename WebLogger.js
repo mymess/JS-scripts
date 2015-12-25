@@ -14,19 +14,26 @@ WEBLOGGER = {
 	},
 
 	log: function(o){
-		
-
 		var s = '';
 		if (typeof o==='string'){
-			s = o.replace(new RegExp("\n", 'gi'), "</br>")		
-			console.log( s )					
+			var chunks = o.split("\n")
+			chunks[0] = '>'.concat(chunks[0]);
+			for (var i=0; i< chunks.length; ++i){
+				var chunk = chunks[i];
+				var cSpan =  document.createElement('span');
+				cSpan.style.color = 'white';
+				cSpan.textContent = chunk;
+				this.div.appendChild(cSpan);
+				this.br();
+			}
+			
 		}else if (typeof o==='object') {
-			//s = o.replace(new RegExp("\n", 'gi'), "</br>");
-			s = JSON.stringify( o ); 
-		}
+			var cSpan =  document.createElement('span');
+			cSpan.textContent = JSON.stringify( o );
+			this.div.appendChild(cSpan) ;
+			this.br();
+		}		
 		
-		this.div.innerHTML += s;
-		this.br();
 	},
 
 	warn: function(o){		
@@ -49,7 +56,7 @@ WEBLOGGER = {
 		if (typeof o==='string'){
 			var chunks = o.split("\n")
 			chunks[0] = '>'.concat(chunks[0]);
-			
+
 			for (var i=0; i< chunks.length; ++i){
 				var chunk = chunks[i];
 				var cSpan =  document.createElement('span');
