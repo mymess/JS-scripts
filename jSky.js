@@ -12,6 +12,31 @@ String.prototype.format = function() {
 
 var SKY = SKY || {}
 
+/*
+SKY = function(utc, lon, lat){
+	this.utc = utc;
+	this.lon = lon;
+	this.lat = lat;
+	this.altitude = 0;
+	this.DEG2RAD   = Math.PI/180;
+	this.RAD2DEG   = 180/Math.PI;
+	this.HOURS2DEG = 15;
+	this.latRad = this.lat*this.DEG2RAD;
+
+	//this.loadBodiesData();
+	this.bodies = [];
+	this.stars = starData;
+
+}
+
+SKY.prototype.update = function(){
+	this.loadBodiesData();
+}
+
+SKY.prototype.loadBodiesData = function(){
+
+}
+*/
 
 SKY = {
 
@@ -33,10 +58,6 @@ SKY = {
 		//this.loadBodiesData();
 		this.bodies = [];
 		this.stars = starData;
-
-		return this;
-		//this.bodies = [];  //sun, moon, planets
-		//this.stars   = [];
 	},
 
 	update: function(){		
@@ -267,8 +288,8 @@ var ra = sirius[7];
 var dec = sirius[8];
 console.log( dec )
 var year = 2015;
-var month = 12;
-var day = 25 + 21/24 + 51/(24*60) + 24/86400;
+var month = 11;
+var day = 25 + 22/24 + 51/(24*60) + 24/86400;
 
 
 var hours 		 = (day - Math.floor(day)) * 24;
@@ -277,7 +298,7 @@ var seconds      = minutes-Math.floor(minutes) * 60;
 var milliseconds = (seconds- Math.floor(seconds))*1000;
 
 day = 25;
-hours = 20;
+hours = 22;
 minutes = 51;
 seconds = 24;
 milliseconds = 0;
@@ -306,6 +327,8 @@ $(document).ready(function(){
 	var minDec = (dec - Math.floor(dec))*60;
 	var secDec = (minDec - Math.floor(minDec))*60;
 
+
+	WEBLOGGER.warn(" month --> " + utc.toString());
 	WEBLOGGER.warn(" RA --> {0}h {1}m {2}s\" ".format(Math.floor(ra), Math.floor(minRA), secRA ) );
 	WEBLOGGER.warn(" Dec -->  {0}º {1}' {2}".format(Math.floor(dec), Math.floor(minDec), secDec ));
 
