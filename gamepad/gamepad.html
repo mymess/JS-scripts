@@ -7,35 +7,163 @@
   <title>Gamepad tester</title>
   <meta name="description" content="The HTML5 Herald">
   
-  <script src="../jquery-2.1.4.min.js"></script>
   
-  <script src="WebLogger.js"></script>
   <script src="gamepad.js"></script>
-  
-  <style>
-    .buttons, .axes {
-      padding: 1em;
-    }
+  <script src="three.min.js"></script>
 
-    .button {
-      padding: 1em;
-      border-radius: 20px;
-      border: 1px solid black;
-      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAAxJREFUCNdjYPjPAAACAgEAqiqeJwAAAABJRU5ErkJggg==);
-      background-size: 0% 0%;
-      background-position: 50% 50%;
-      background-repeat: no-repeat;
-    }
-
-    .pressed {
-      border: 1px solid red;
-    }
-</style>
+  <!--
+  <script src="js/controls/FirstPersonControls.js"></script>
+  -->
 
   
 </head>
 
 <body>
+
+  <script type="text/javascript">
+
+      init();
+      animate();
+
+      function init() {
+
+        container = document.createElement( 'div' );
+        document.body.appendChild( container );
+
+        camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 2000 );
+        camera.position.set( 2, 4, 5 );
+
+        scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2( 0x000000, 0.035 );
+
+        
+        var objectLoader = new THREE.ObjectLoader();
+        objectLoader.load("x-wing.json", function ( obj ) {
+          scene.add( obj );
+        } );
+
+
+
+
+        var loader = new THREE.JSONLoader();
+        console.log( "antes" );        
+
+        loader.load( 'x-wing.json', function ( geometry, materials ) {
+            console.log( cargado );
+
+            var material = new THREE.MeshFaceMaterial( materials );
+            var object = new THREE.Mesh( geometry, material );
+            scene.add( object );
+          // adjust color a bit
+          /*
+          var material = materials[ 0 ];
+          material.morphTargets = true;
+          material.color.setHex( 0xffaaaa );
+
+          var faceMaterial = new THREE.MeshFaceMaterial( materials );
+
+          for ( var i = 0; i < 729; i ++ ) {
+
+            // random placement in a grid
+
+            var x = ( ( i % 27 )  - 13.5 ) * 2 + THREE.Math.randFloatSpread( 1 );
+            var z = ( Math.floor( i / 27 ) - 13.5 ) * 2 + THREE.Math.randFloatSpread( 1 );
+
+            // leave space for big monster
+
+            if ( Math.abs( x ) < 2 && Math.abs( z ) < 2 ) continue;
+
+            mesh = new THREE.Mesh( geometry, faceMaterial );
+
+            var s = THREE.Math.randFloat( 0.00075, 0.001 );
+            mesh.scale.set( s, s, s );
+
+            mesh.position.set( x, 0, z );
+            mesh.rotation.y = THREE.Math.randFloat( -0.25, 0.25 );
+
+            mesh.matrixAutoUpdate = false;
+            mesh.updateMatrix();
+
+            scene.add( mesh );
+            
+            var mixer = new THREE.AnimationMixer( mesh );
+            mixer.addAction( new THREE.AnimationAction( geometry.animations[0] ).warpToDuration( 1 ) );
+
+            // random animation offset
+            mixer.update( 1000 * Math.random() );
+
+            mixers.push( mixer );
+            
+          }*/
+
+        } );
+
+
+
+        // Lights
+
+        scene.add( new THREE.AmbientLight( 0xcccccc ) );
+
+        pointLight = new THREE.PointLight( 0xff4400, 5, 30 );
+        pointLight.position.set( 5, 0, 0 );
+        scene.add( pointLight );
+
+        // Renderer
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        container.appendChild( renderer.domElement );
+
+        // Stats
+
+        //stats = new Stats();
+        //container.appendChild( stats.domElement );
+
+        // Events
+
+        window.addEventListener( 'resize', onWindowResize, false );
+
+      }
+
+      //
+
+      function onWindowResize( event ) {
+
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+
+      }
+
+      //
+
+      function animate() {
+
+        requestAnimationFrame( animate );
+
+        //var delta = clock.getDelta();
+
+        render();
+        //stats.update();
+
+      }
+
+      function render() {
+
+        renderer.render( scene, camera );
+
+      }
+
+
+
+
+
+
+  </script>
+
+
 
 </body>
 </html>
