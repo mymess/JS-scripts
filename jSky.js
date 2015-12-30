@@ -62,7 +62,7 @@ SKY = {
 
 	update: function(){		
 		for(var i=0; i<this.stars.length; i++){
-			this.calculateLocalCoordinates( this.stars[i] )
+			this.calculateStarLocalCoordinates( this.stars[i] )
 		}
 	},
 
@@ -121,10 +121,10 @@ SKY = {
 
 
 
-	calculateLocalCoordinates: function ( item ) {		
-		var ans = coord_to_horizon (item.ra, item.dec)
-		item.prototype.az  = ans[0];
-		item.prototype.alt = ans[1];
+	calculateStarLocalCoordinates: function ( item ) {		
+		var ans = this.coord_to_horizon (item.ra, item.dec)
+		item[ 23 ]  = ans[0];
+		item[ 24 ]  = ans[1];
 	},
 
 	//input: RA in hours, dec in degrees
@@ -136,8 +136,8 @@ SKY = {
 	    if (ha < 0) ha = ha + 360;
 
 	    // convert degrees to radians
-	    ha  = ha *this.DEG2RAD;
-	    dec = dec*this.DEG2RAD;
+	    ha  = ha  * this.DEG2RAD;
+	    dec = dec * this.DEG2RAD;
 	    
 
 	    // compute altitude in radians
@@ -209,12 +209,36 @@ SKY = {
 		this.dec 	   = dec;				
 	},
 
-	Star: function(name, ra, dec, magnitude, color){
-		this.name      = name;
-		this.ra 	   = ra;
-		this.dec 	   = dec;	
-		this.magnitude = magnitude;		
-		this.color 	   = color;	
+	getStarData: function(star){
+		//StarID,HIP,HD,HR,Gliese,BayerFlamsteed,ProperName,RA,Dec,Distance,PMRA,PMDec,RV,Mag,AbsMag,Spectrum,ColorIndex, X,Y,Z,VX,VY,VZ
+		return {
+			StarID: star[0],
+			HIP: star[1],
+			HD: star[2],
+			HR: star[3],
+			Gliese: star[4],
+			BayerFlamsteed: star[5],
+			ProperName: star[6],
+			RA: star[7],
+			Dec: star[8],
+			Distance: star[9],
+			PMRA: star[ 10 ],
+			PMDec: star[11],
+			RV: star[ 12 ],
+			Mag: star [ 13 ],
+			AbsMag: star[14],
+			Spectrum: star[15],
+			ColorIndex: star[ 16 ],
+			X: star[17],
+			Y: star[18],
+			Z: star[ 19],
+			VX: star[20], 
+			VY: star[21],
+			VZ: star[22],
+			azimuth: star[23],
+			altitude: star[24]
+		}
+
 	},
 
 	loadBodiesData: function(){		
@@ -269,6 +293,63 @@ SKY = {
 			s += "\n---- ";
 		}
 		return s;
+	},
+	getStarRGB: function(starIdx){
+		var colorIndex = parseFloat(this.stars[ starIdx ][ 16 ]);
+
+        //RED
+        // y = -0,0921x5 + 0,3731x4 - 0,3497x3 - 0,285x2 + 0,5327x + 0,8217            
+        var red = -.0921*Math.pow(colorIndex, 5 ) + .3731*Math.pow(colorIndex,4) - .3497*Math.pow(colorIndex,3) 
+        	      - .285*Math.pow(colorIndex,2) + .5327*colorIndex + .8217;            
+        if (red>1.0) {
+        	red = 1.0;
+        }
+        
+        //GREEN
+		//y = -0,1054x6 + 0,229x5 + 0,1235x4 - 0,3529x3 - 0,2605x2 + 0,398x + 0,8626
+		var green = -.1054*Math.pow(colorIndex, 6) + .229*Math.pow(colorIndex, 5 ) + .1235*Math.pow(colorIndex, 4) 
+					- .3529*Math.pow(colorIndex, 3) - .2605 * Math.pow(colorIndex, 2 ) + .398*colorIndex + .8626;           
+
+		//BLUE
+		var blue = 0.0;
+        //for the interval [-0.40, 0.40]
+        //y = 1.0f
+        //for the interval (0.40,  1.85]
+        //y = -1,9366x6 + 12,037x5 - 30,267x4 + 39,134x3 - 27,148x2 + 9,0945x - 0,1475
+        //for the interval (1,85-2.0]
+        //y = 0.0f
+        if( colorIndex <= .40){
+            blue = 1.0;
+        }
+        if( colorIndex>.40 && colorIndex<=1.85){
+            blue = -1.9366*Math.pow(colorIndex, 6) + 12.037*Math.pow(colorIndex, 5) - 30.267*Math.pow(colorIndex, 4)
+            	   + 39.134 * Math.pow(colorIndex, 3) -27.148*Math.pow(colorIndex, 2) + 9.0945*colorIndex - .1475;
+        }
+        if( colorIndex>1.85 ){
+            blue = 0.0;                
+        }
+
+        return {r:parseInt(red*255), g: parseInt(green*255), b: parseInt(blue*255) };
+
+	},
+	
+	getStarSize: function( starIdx ){
+		
+		// f(x) = 1 + ax + bx^2
+		// f(0) = 1
+		// f( maxM ) = .01
+		// f'( maxM ) = 0
+
+
+		var m = this.stars[starIdx][ 13 ];	
+		var m2 = parseFloat(m) + 1.44;
+		var max2 = this.maxMag + 1.44;
+
+		var a = -1.98/max2;
+		var b = .99/(max2*max2);
+
+		return  1 + a*m2 + b*m2*m2;	
+
 	}
 }
 
@@ -314,7 +395,7 @@ var lat = 39+28/60 + 48/3600;
 
 
 $(document).ready(function(){
-	WEBLOGGER.init();
+	var logger = new WEBLOGGER();
 
 	SKY.init(utc, lon, lat );
 
@@ -328,25 +409,38 @@ $(document).ready(function(){
 	var secDec = (minDec - Math.floor(minDec))*60;
 
 
-	WEBLOGGER.warn(" month --> " + utc.toString());
-	WEBLOGGER.warn(" RA --> {0}h {1}m {2}s\" ".format(Math.floor(ra), Math.floor(minRA), secRA ) );
-	WEBLOGGER.warn(" Dec -->  {0}º {1}' {2}".format(Math.floor(dec), Math.floor(minDec), secDec ));
+	logger.warn(" month --> " + utc.toString());
+	logger.warn(" RA --> {0}h {1}m {2}s\" ".format(Math.floor(ra), Math.floor(minRA), secRA ) );
+	logger.warn(" Dec -->  {0}º {1}' {2}".format(Math.floor(dec), Math.floor(minDec), secDec ));
 
 
-	WEBLOGGER.warn(" AZ --> " +azAlt[0] );
-	WEBLOGGER.warn(" Alt --> "+azAlt[1] );
+	logger.warn(" AZ --> " +azAlt[0] );
+	logger.warn(" Alt --> "+azAlt[1] );
+
+	var antares = ["80520", "80763", "148478", "6134", "", "21Alp Sco", "Antares", "16.49012986", "-26.43194608", "185.185185185185", "-10.16", "-23.21", "-3", "1.06", "-5.27803120088516", "M1Ib + B2.5V", "1.865", "-63.85476", "-153.03932", "-82.43231", "-3.788e-06", "1.4607e-05", "-1.7292e-05"];
+
+	
+
+	var sirius = ["32263", "32349", "48915", "2491", "Gl 244  A", "9Alp CMa", "Sirius", "6.7525694", "-16.71314306", "2.63706125893305", "-546.01", "-1223.08", "-9.4", "-1.44", "1.45439890714285", "A0m...", "0.009", "-0.49439", "2.4768", "-0.75836", "9.527e-06", "-1.2072e-05", "-1.221e-05"];
+	
+	SKY.stars = [antares, sirius];
 
 
 // AZ: 138º 17' 01"  
 // ALT: 22º 34' 17"
 	var azS = 138 + 17/60 + 1/3600;
 	var alS = 22 + 34/60 +17/3600;
-	WEBLOGGER.error(" AZ Stellarium --> " + azS );
-	WEBLOGGER.error(" Alt Stellarium --> " + alS );
+	logger.error(" AZ Stellarium --> " + azS );
+	logger.error(" Alt Stellarium --> " + alS );
 	//WEBLOGGER.log( starData );
 	//WEBLOGGER.error( "ERROR: system failure." );
 	//WEBLOGGER.warn( "WARNING: system failure." );
-	
+	var rgb = SKY.getStarRGB( 0 );
+	logger.warn( "Antares {0} {1} {2}".format(rgb.r, rgb.g, rgb.b) );
+
+	rgb = SKY.getStarRGB( 1 );
+	logger.warn( "sirius {0} {1} {2}".format(rgb.r, rgb.g, rgb.b) );
+
 	
 });
 //model.update();
