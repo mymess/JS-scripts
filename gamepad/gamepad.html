@@ -13,7 +13,10 @@
   <script src="three.min.js"></script>
   <script src="stats.min.js"></script>
 
+  <!--
   <script src="howler/howler.min.js"></script>  
+  -->
+  <script src="buzz/buzz.min.js"></script>  
   <script src="SoundController.js"></script>  
 
   <script src="OrbitControls.js"></script>
@@ -199,21 +202,17 @@
 
         requestAnimationFrame( animate );
 
-        //var delta = clock.getDelta();
-
         render();
         stats.update();
 
       }
 
       function render() {
-        dae.translateX(.1);
-        renderer.render( scene, camera );
+        dae.translateX(.1);        
         controls.update(clock.getDelta());
-        
-
         playSounds();
-
+      
+        renderer.render( scene, camera );
         //console.log( "roll " + controls.getRight_xAxis() );
 
         /*
@@ -269,7 +268,7 @@
           geom.vertices.push( dst.clone() );
           geom.computeLineDistances(); // This one is SUPER important, otherwise dashed lines will appear as simple plain lines
 
-          var axis = new THREE.Line( geom, mat, THREE.LinePieces );
+          var axis = new THREE.Line( geom, mat, THREE.LineSegments );
 
           return axis;
 

@@ -182,7 +182,7 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 			case 109: /*-*/ this.thrustDown = true; break;
 
 			case 17: /*Ctrl*/ this.shootLaser = true; break;
-			case 18: /*Alt*/ this.shootProton = true; break;
+			case 32: /*Space*/ this.shootProton = true; break;
 
 
 		}
@@ -213,7 +213,7 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 			case 109: /*-*/ this.thrustDown = false; break;
 
 			case 17: /*Ctrl*/ this.shootLaser = false; break;
-			case 18: /*Alt*/ this.shootProton = false; break;
+			case 32: /*Space*/ this.shootProton = false; break;
 
 		}
 
@@ -314,18 +314,28 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 
 		}
 
+
+
 		var targetPosition = this.targetObject.position,
 			position = this.object.position;
-		/*
-		targetPosition.x = position.x + 100 * Math.sin( this.phi ) * Math.cos( this.theta );
-		targetPosition.y = position.y + 100 * Math.cos( this.phi );
-		targetPosition.z = position.z + 100 * Math.sin( this.phi ) * Math.sin( this.theta );
-		*/
-
-		//object
-		
 			
 		//camera	
+
+		
+		//this.staticCamera();
+
+		
+		this.targetObject.matrixAutoUpdate= true;
+		this.targetObject.matrixWorldNeedsUpdate= true;
+		this.targetObject.updateMatrix();
+		this.targetObject.updateMatrixWorld ( true );
+		this.chaseCamera();
+		this.object.matrixAutoUpdate= true;
+		this.object.matrixWorldNeedsUpdate= true;
+		this.object.updateMatrix();
+		this.object.updateMatrixWorld ( true );
+		//this.chaseCamera();
+		/*
 		var xWorld = this.targetObject.localToWorld( x );
 		var yWorld = this.targetObject.localToWorld( y );
 		var zWorld = this.targetObject.localToWorld( z );
@@ -336,9 +346,25 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 		//this.object.position = 			
 		
 		this.object.position = targetPosition;
-		
+		*/
 		//this.object.position.sub(yWorld.multiplyScalar(-50));
 		//this.object.position.sub(zWorld.multiplyScalar(-50));
+		
+	}
+
+	this.chaseCamera = function(){
+		var relativeCameraOffset = new THREE.Vector3(-50, 10, 0);
+
+		var cameraOffset = relativeCameraOffset.applyMatrix4( this.targetObject.matrixWorld );
+		var targetPosition = this.targetObject.position;		
+
+		this.object.lookAt( targetPosition );
+		this.object.position.set( cameraOffset.x, cameraOffset.y, cameraOffset.z) ;
+		/*
+		this.object.x = cameraOffset.x;
+		this.object.y = cameraOffset.y;
+		this.object.z = cameraOffset.z;
+		*/
 		
 	}
 
@@ -353,8 +379,6 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 		this.object.lookAt( targetPosition );
 
 		this.object.position = targetPosition.copy();
-		
-
 		this.object.position = this.object.position.sub( xWorld.multiplyScalar(-50) );
 	}
 

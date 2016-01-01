@@ -1,6 +1,7 @@
 
 SoundController = function() {
 	var scope = this;
+	/*
 	var effects = new Howl({
 	  url: ['sounds/effects.mp3'],
 	  sprite: {
@@ -11,10 +12,23 @@ SoundController = function() {
 
 	var laser = new Howl({ urls:['sounds/XWing-Laser.mp3']});
 	var proton = new Howl({ urls:['sounds/XWing-Proton.wav']})
-	
-	this.playLaser = function() { laser.play(); };
+	*/
 
-	this.playProton = function() { proton.play(); };
+	var laser = new buzz.sound( "sounds/XWing-Laser.mp3");
+	var proton = new buzz.sound( "sounds/XWing-Proton.wav");
+
+
+	this.playLaser = function() { 
+		if(laser.isPaused() || laser.isEnded()) {
+			laser.play(); 
+		}
+	};
+
+	this.playProton = function() { 
+		if(proton.isPaused() || proton.isEnded()) {
+			proton.play(); 
+		}
+	};
 
 	/*	
 	var music = new Howl({
