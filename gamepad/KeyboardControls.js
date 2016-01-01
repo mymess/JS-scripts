@@ -4,9 +4,13 @@
 
 THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 
+	var scope = this;
+
 	this.object = object;
 	this.target = new THREE.Vector3( 0, 0, 0 );
 	this.targetObject = targetObject;
+
+
 
 	this.domElement = ( domElement !== undefined ) ? domElement : document;
 
@@ -41,6 +45,12 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 	this.lon = 0;
 	this.phi = 0;
 	this.theta = 0;
+
+
+	this.maxSpeed = 102.5;
+	this.thrust = 20;
+	this.thrustUp = false;
+	this.thrustDown = false;
 
 	this.pitchDown = false;
 	this.pitchUp = false;
@@ -161,6 +171,9 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 			case 82: /*R*/ this.moveUp = true; break;
 			case 70: /*F*/ this.moveDown = true; break;
 
+			case 107: /*+*/ this.thrustUp = true; break;
+			case 109: /*-*/ this.thrustDown = true; break;
+
 		}
 
 	};
@@ -184,6 +197,9 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 
 			case 82: /*R*/ this.moveUp = false; break;
 			case 70: /*F*/ this.moveDown = false; break;
+
+			case 107: /*+*/ this.thrustUp = false; break;
+			case 109: /*-*/ this.thrustDown = false; break;
 
 		}
 
@@ -212,7 +228,9 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 
 		}
 
-		var actualMoveSpeed = delta * this.movementSpeed;
+		
+
+		
 		var actualPitchSpeed = delta * this.pitchSpeed;
 		var actualRollSpeed = delta * this.rollSpeed;
 
@@ -228,6 +246,25 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 		if ( this.moveRight ) {
 			this.targetObject.rotateOnAxis(x, actualRollSpeed );
 		}
+
+		if( this.thrustUp && this.thrustUp<100){
+			this.thrust += 5;
+		}
+
+
+		if( this.thrustDown && this.theta>0 ){
+			this.thrust -= 5;
+		}
+
+		this.movementSpeed = .2*this.thrust;
+		var actualMoveSpeed = delta * this.movementSpeed;
+		actualMoveSpeed < this.maxSpeed? actualMoveSpeed +=.1 : actualMoveSpeed = this.maxSpeed;
+		/*
+		if( this.thrustUp ){
+			actualMoveSpeed < this.maxSpeed? actualMoveSpeed +=.1 : actualMoveSpeed = this.maxSpeed;
+		}
+		*/
+		this.targetObject.translateX(actualMoveSpeed);
 
 		//TODO: this should be YAW
 		//if ( this.moveUp ) this.object.translateY( actualRollSpeed );
@@ -270,33 +307,43 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 		targetPosition.y = position.y + 100 * Math.cos( this.phi );
 		targetPosition.z = position.z + 100 * Math.sin( this.phi ) * Math.sin( this.theta );
 		*/
+
+		//object
 		
-		
+			
+		//camera	
 		var xWorld = this.targetObject.localToWorld( x );
 		var yWorld = this.targetObject.localToWorld( y );
 		var zWorld = this.targetObject.localToWorld( z );
 		
+		//scope.staticCamera();	
+		this.object.lookAt( targetPosition );
+
+		//this.object.position = 			
+		
+		this.object.position = targetPosition;
+		
+		//this.object.position.sub(yWorld.multiplyScalar(-50));
+		//this.object.position.sub(zWorld.multiplyScalar(-50));
+		
+	}
+
+	this.staticCamera = function(){
+
+		var x = new THREE.Vector3( 1, 0, 0 );
+
+		var targetPosition = this.targetObject.position;
+		var xWorld = this.targetObject.localToWorld( x );
+
+
 		this.object.lookAt( targetPosition );
 
 		this.object.position = targetPosition.copy();
 		
-		//this.object.translateOnAxis(z, -10);
-				
-		//this.object.translateX = -100 ;
-		//this.object.translateY = -35;
-		//this.object.translateX(50);
-		//this.object.translateY(10);
-		//this.object.translateZ(-50);
-		
-		
-		
-		//this.object.updateMatrix();
-		
-		this.object.position = this.object.position.sub(xWorld.multiplyScalar(-50));
-		//this.object.position.sub(yWorld.multiplyScalar(-50));
-		//this.object.position.sub(zWorld.multiplyScalar(-50));
-		
-	};
+
+		this.object.position = this.object.position.sub( xWorld.multiplyScalar(-50) );
+	}
+
 
 	function contextmenu( event ) {
 
