@@ -27,6 +27,10 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 
 	this.activeLook = true;
 
+
+	this.shootLaser = false;
+	this.shootProton = false;
+
 	this.heightSpeed = false;
 	this.heightCoef = 1.0;
 	this.heightMin = 0.0;
@@ -61,6 +65,9 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 
 	this.viewHalfX = 0;
 	this.viewHalfY = 0;
+
+
+	
 
 	if ( this.domElement !== document ) {
 
@@ -174,6 +181,10 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 			case 107: /*+*/ this.thrustUp = true; break;
 			case 109: /*-*/ this.thrustDown = true; break;
 
+			case 17: /*Ctrl*/ this.shootLaser = true; break;
+			case 18: /*Alt*/ this.shootProton = true; break;
+
+
 		}
 
 	};
@@ -200,6 +211,9 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 
 			case 107: /*+*/ this.thrustUp = false; break;
 			case 109: /*-*/ this.thrustDown = false; break;
+
+			case 17: /*Ctrl*/ this.shootLaser = false; break;
+			case 18: /*Alt*/ this.shootProton = false; break;
 
 		}
 

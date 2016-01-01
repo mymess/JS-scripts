@@ -12,6 +12,10 @@
 
   <script src="three.min.js"></script>
   <script src="stats.min.js"></script>
+
+  <script src="howler/howler.min.js"></script>  
+  <script src="SoundController.js"></script>  
+
   <script src="OrbitControls.js"></script>
   <script src="KeyboardControls.js"></script>
   <!--
@@ -35,7 +39,7 @@
       var camera, gamepad, stats;
       var clock = new THREE.Clock();
 
-      var dae;
+      var dae, sounds;
 
       var loader = new THREE.ColladaLoader();
       loader.options.convertUpAxis = true;
@@ -168,6 +172,8 @@
         stats.domElement.style.left = '10px';
         container.appendChild( stats.domElement );
 
+        sounds = new SoundController();
+
         // Events
         gamepad = new GAMEPAD();
 
@@ -205,6 +211,9 @@
         renderer.render( scene, camera );
         controls.update(clock.getDelta());
         
+
+        playSounds();
+
         //console.log( "roll " + controls.getRight_xAxis() );
 
         /*
@@ -220,6 +229,17 @@
         
       }
 
+      function playSounds(){
+
+        if( controls.shootLaser ){
+            sounds.playLaser();
+        }
+
+        if( controls.shootProton ){
+            sounds.playProton();
+        }
+        
+      }
 
       function buildAxes( length ) {
         var axes = new THREE.Object3D();
