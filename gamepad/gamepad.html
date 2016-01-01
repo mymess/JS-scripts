@@ -9,10 +9,19 @@
   
   
   <script src="gamepad.js"></script>
+
   <script src="three.min.js"></script>
+  <script src="stats.min.js"></script>
+  <script src="OrbitControls.js"></script>
+  <script src="KeyboardControls.js"></script>
+  <!--
+  <script src="GamepadControls.js"></script>
+-->
+  <script src="ColladaLoader.js"></script>
+
 
   <!--
-  <script src="js/controls/FirstPersonControls.js"></script>
+  <script src="FirstPersonControls.js"></script>
   -->
 
   
@@ -22,8 +31,77 @@
 
   <script type="text/javascript">
 
-      init();
-      animate();
+      var scene, controls, container;
+      var camera, gamepad, stats;
+      var clock = new THREE.Clock();
+
+      var dae;
+
+      var loader = new THREE.ColladaLoader();
+      loader.options.convertUpAxis = true;
+      loader.options.centerGeometry = true;
+
+
+      loader.load( 'x-wing2.dae', function ( collada ) {
+
+        dae = collada.scene;
+
+        dae.traverse( function ( child ) {
+
+          if ( child instanceof THREE.SkinnedMesh ) {
+
+            //var animation = new THREE.Animation( child, child.geometry.animation );
+            //animation.play();
+
+          }
+
+        } );
+
+        console.log( dae );
+        console.log( dae.children[0] );
+        var xwing = dae.children[0];
+        //var centroid = calculateTargetCentroid( dae.children[0] );
+
+        //console.log(centroid );
+
+        //dae.scale.x = dae.scale.y = dae.scale.z = 0.002;
+        var x = new THREE.Vector3(1,0,0);
+        var y = new THREE.Vector3(0,1,0);
+        var z = new THREE.Vector3(0,0,1);
+
+        dae.translateX(0);
+        dae.translateY(0);
+        dae.translateZ(1);
+        
+        //dae.translateZ(5);
+
+
+        var xWorld = dae.localToWorld(x);
+        var yWorld = dae.localToWorld(y);
+        var zWorld = dae.localToWorld(z);
+
+        //dae.rotateX( 90 );
+
+        dae.updateMatrix();
+
+        init();
+        animate();
+
+      } );
+
+      function calculateTargetCentroid (dae) {
+        var centroid = new THREE.Vector3();
+        var numVertices = 0;
+        
+        for( var i=0; i< dae.vertices.length; i++){
+            centroid.addSelf( dae.vertices[i] )
+        }
+
+        centroid.divideScalar( dae.vertices.length );
+
+        return centroid;
+      };
+
 
       function init() {
 
@@ -31,82 +109,39 @@
         document.body.appendChild( container );
 
         camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 2000 );
-        camera.position.set( 2, 4, 5 );
+        camera.position.set( 0, 25, 25 );
 
         scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2( 0x000000, 0.035 );
+        //scene.fog = new THREE.FogExp2( 0x000000, 0.035 );
 
-        
+        scene.add( dae );
+
+        /*
         var objectLoader = new THREE.ObjectLoader();
         objectLoader.load("x-wing.json", function ( obj ) {
           scene.add( obj );
         } );
+        */
 
+        scene.add( buildAxes(1000));
+        //scene.add( new THREE.AxisHelper( 100 ) );
 
-
-
-        var loader = new THREE.JSONLoader();
-        console.log( "antes" );        
-
-        loader.load( 'x-wing.json', function ( geometry, materials ) {
-            console.log( cargado );
-
-            var material = new THREE.MeshFaceMaterial( materials );
-            var object = new THREE.Mesh( geometry, material );
-            scene.add( object );
-          // adjust color a bit
-          /*
-          var material = materials[ 0 ];
-          material.morphTargets = true;
-          material.color.setHex( 0xffaaaa );
-
-          var faceMaterial = new THREE.MeshFaceMaterial( materials );
-
-          for ( var i = 0; i < 729; i ++ ) {
-
-            // random placement in a grid
-
-            var x = ( ( i % 27 )  - 13.5 ) * 2 + THREE.Math.randFloatSpread( 1 );
-            var z = ( Math.floor( i / 27 ) - 13.5 ) * 2 + THREE.Math.randFloatSpread( 1 );
-
-            // leave space for big monster
-
-            if ( Math.abs( x ) < 2 && Math.abs( z ) < 2 ) continue;
-
-            mesh = new THREE.Mesh( geometry, faceMaterial );
-
-            var s = THREE.Math.randFloat( 0.00075, 0.001 );
-            mesh.scale.set( s, s, s );
-
-            mesh.position.set( x, 0, z );
-            mesh.rotation.y = THREE.Math.randFloat( -0.25, 0.25 );
-
-            mesh.matrixAutoUpdate = false;
-            mesh.updateMatrix();
-
-            scene.add( mesh );
-            
-            var mixer = new THREE.AnimationMixer( mesh );
-            mixer.addAction( new THREE.AnimationAction( geometry.animations[0] ).warpToDuration( 1 ) );
-
-            // random animation offset
-            mixer.update( 1000 * Math.random() );
-
-            mixers.push( mixer );
-            
-          }*/
-
-        } );
 
 
 
         // Lights
 
-        scene.add( new THREE.AmbientLight( 0xcccccc ) );
+        light = new THREE.DirectionalLight( 0xffffff );
+        light.position.set( 1, 1, 1 );
+        scene.add( light );
 
-        pointLight = new THREE.PointLight( 0xff4400, 5, 30 );
-        pointLight.position.set( 5, 0, 0 );
-        scene.add( pointLight );
+        light = new THREE.DirectionalLight( 0x002288 );
+        light.position.set( -1, -1, -1 );
+        scene.add( light );
+
+        light = new THREE.AmbientLight( 0x222222 );
+        scene.add( light );
+
 
         // Renderer
 
@@ -115,12 +150,27 @@
         renderer.setSize( window.innerWidth, window.innerHeight );
         container.appendChild( renderer.domElement );
 
+
+
+        //controls = new THREE.OrbitControls( camera, renderer.domElement );
+        controls = new THREE.KeyboardControls( camera, renderer.domElement, dae );
+        //controls = new THREE.GamepadControls( camera, renderer.domElement, dae );
+
+        //controls.addEventListener( 'change', render ); // add this only if there is no animation loop (requestAnimationFrame)
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.25;        
+
         // Stats
 
-        //stats = new Stats();
-        //container.appendChild( stats.domElement );
+        stats = new Stats();
+        stats.domElement.style.position = 'absolute';
+        stats.domElement.style.top = '0px';
+        stats.domElement.style.left = '10px';
+        container.appendChild( stats.domElement );
 
         // Events
+        gamepad = new GAMEPAD();
+
 
         window.addEventListener( 'resize', onWindowResize, false );
 
@@ -146,19 +196,64 @@
         //var delta = clock.getDelta();
 
         render();
-        //stats.update();
+        stats.update();
 
       }
 
       function render() {
-
+        dae.translateX(.1);
         renderer.render( scene, camera );
+        controls.update(clock.getDelta());
+        
+        //console.log( "roll " + controls.getRight_xAxis() );
 
+        /*
+        if(gamepad.getRight_xAxis() != undefined){        
+           console.log( "X --> " + gamepad.getRight_xAxis() );
+        }
+        
+        if(gamepad.getRight_yAxis() != undefined){        
+           console.log( "Y --> " + gamepad.getRight_yAxis() );
+        }
+        */
+        //gamepad.logPressedButtons();
+        
       }
 
 
+      function buildAxes( length ) {
+        var axes = new THREE.Object3D();
 
+        axes.add( buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( length, 0, 0 ), 0xFF0000, false ) ); // +X
+        axes.add( buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( -length, 0, 0 ), 0xFF0000, true) ); // -X
+        axes.add( buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, length, 0 ), 0x00FF00, false ) ); // +Y
+        axes.add( buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, -length, 0 ), 0x00FF00, true ) ); // -Y
+        axes.add( buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, length ), 0x0000FF, false ) ); // +Z
+        axes.add( buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, -length ), 0x0000FF, true ) ); // -Z
 
+        return axes;
+
+      }
+
+      function buildAxis( src, dst, colorHex, dashed ) {
+          var geom = new THREE.Geometry(),
+            mat; 
+
+          if(dashed) {
+            mat = new THREE.LineDashedMaterial({ linewidth: 3, color: colorHex, dashSize: 3, gapSize: 3 });
+          } else {
+            mat = new THREE.LineBasicMaterial({ linewidth: 3, color: colorHex });
+          }
+
+          geom.vertices.push( src.clone() );
+          geom.vertices.push( dst.clone() );
+          geom.computeLineDistances(); // This one is SUPER important, otherwise dashed lines will appear as simple plain lines
+
+          var axis = new THREE.Line( geom, mat, THREE.LinePieces );
+
+          return axis;
+
+    }
 
 
   </script>

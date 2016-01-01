@@ -8,85 +8,6 @@ String.prototype.format = function() {
 };
 
 
-var GP = GP || {}
-/*
-GP = {
-	 init: function(event){
-	 	this.gamepad = event.gamepad;
-	 	var logger = new WEBLOGGER();
-		logger.log("Gamepad connected at index {0}: {1}. {2} buttons, {3} axes.".format(this.gamepad.index, this.gamepad.id, this.gamepad.buttons.length, this.gamepad.axes.length));
-		
-
-		var gamepads = navigator.getGamepads();
-		logger.log(" gamepads ", gamepads);
- 
-		for(var i = 0; i<gamepads; ++i){
-	  		gp = gamepads[i];
-	  		if(gp !== undefined){
-				logger.log("Gamepad connected at index {0}: {1}. {2} buttons, {3} axes.".format(gp.index, gp.id, gp.buttons.length, gp.axes.length));
-			}
-	  	}
-
-
-	 },
-
-
-	 close: function(event){
-	 	delete this.gamepad;
-	 }
-}
-
-
-function gamepadHandler(event, connecting) {
-  	var gamepad = event.gamepad;
-  	// Note:
-  	// gamepad === navigator.getGamepads()[gamepad.index]
-	var logger = new WEBLOGGER();
-
-	logger.log("Gamepad connected at index {0}: {1}. {2} buttons, {3} axes.".format(gamepad.index, gamepad.id, gamepad.buttons.length, gamepad.axes.length));
-
-	
-	logger.log( "En el handler ");
-	var gamepads = navigator.getGamepads();
-	logger.log(" gamepads ", gamepads);
- 
-	for(var i = 0; i<gamepads; ++i){
-  		gp = gamepads[i];
-  		if(gp !== undefined){
-			logger.log("Gamepad connected at index {0}: {1}. {2} buttons, {3} axes.".format(gp.index, gp.id, gp.buttons.length, gp.axes.length));
-		}
-  	}
-	GP = navigator.getGamepads()[event.gamepad.index];
-
-  	
-
-  	
-
-  if (connecting) {
-    gamepads[gamepad.index] = gamepad;
-
-  } else {
-    delete gamepads[gamepad.index];
-  }
-}
-
-
-window.addEventListener("gamepadconnected", function(e) { GP.init(e); }, false);
-window.addEventListener("gamepaddisconnected", function(e) { GP.close(e); }, false);
-
-
-
-$(document).ready(function(){
-	
-	var logger = new WEBLOGGER();
-	
-	logger.log( "Ready");
-	
-	
-	
-});
-*/
-
 //model.update();
 //model.log();
 //console.log( "Hola {0}, {1}".format("joan", "qué tal?") );
@@ -94,6 +15,8 @@ $(document).ready(function(){
 var Tester = function () { };
 
 Tester.prototype.addgamepad = (function(gamepad) {
+	console.log("Adding gamepad to controllers index %d ", gamepad.index)
+
 	this.controllers[gamepad.index] = gamepad;
 
 	var d = document.createElement("div");
@@ -160,11 +83,18 @@ Tester.prototype.controllers = {}
 Tester.prototype.scangamepads = (function() {
   
   var gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads() : []);
+  console.log (" There are %d gamepads detected.", gamepads.length );
+  
+  if( gamepads.length == 0 ){
+  	console.log ("Connect it AND press any button to detect it." );
+  }
 
   for (var i = 0; i < gamepads.length; i++) {
     if (gamepads[i]) {
       if (gamepads[i].index in this.controllers) {
       	
+      	console.log ( "adding gamepad %d to controllers index %d", i, gamepads[i].index);
+
         this.controllers[gamepads[i].index] = gamepads[i];
       } else {      	
       	this.addgamepad( gamepads[i] );
@@ -179,7 +109,7 @@ Tester.prototype.scangamepads = (function() {
 
 Tester.prototype.updateStatus = (function() {
 	  
-	  this.scangamepads();
+	  //this.scangamepads();
 	  
 
 	  var i = 0;
@@ -222,7 +152,7 @@ Tester.prototype.updateStatus = (function() {
 	  
 }).bind(Tester.prototype);
 
-/*
+
 var tester = new Tester();
 
 
@@ -230,26 +160,12 @@ window.addEventListener("gamepadconnected", function(e){ tester.connecthandler(e
 window.addEventListener("gamepaddisconnected", function(e) {tester.disconnecthandler(e); });
 
 
-setInterval(tester.scangamepads, 500);
-*/
+//setInterval(tester.scangamepads, 500);
+tester.scangamepads();
 
+setInterval(tester.updateStatus, 500);
 
-var __nativeST__ = window.setTimeout, __nativeSI__ = window.setInterval;
- 
-window.setTimeout = function (vCallback, nDelay /*, argumentToPass1, argumentToPass2, etc. */) {
-  var oThis = this, aArgs = Array.prototype.slice.call(arguments, 2);
-  return __nativeST__(vCallback instanceof Function ? function () {
-    vCallback.apply(oThis, aArgs);
-  } : vCallback, nDelay);
-};
- 
-window.setInterval = function (vCallback, nDelay /*, argumentToPass1, argumentToPass2, etc. */) {
-  var oThis = this, aArgs = Array.prototype.slice.call(arguments, 2);
-  return __nativeSI__(vCallback instanceof Function ? function () {
-    vCallback.apply(oThis, aArgs);
-  } : vCallback, nDelay);
-};
-
+/*
 var Person = function (firstName) {
   this.firstName = firstName;
   var scope = this;
@@ -263,6 +179,9 @@ var Person = function (firstName) {
   }
 
 };
+
+
+
 
 Person.prototype.sayHello = function() {
   console.log("Hello, I'm " + this.firstName);
@@ -283,3 +202,4 @@ person2.sayHello();
 person2.repeatHello();
 
 document.addEventListener("keydown", person1.repeatHello, true);
+*/
