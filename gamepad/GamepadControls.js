@@ -3,26 +3,32 @@
  * @author joandelason / http://www.tothemoonlabs.com
  */
 
-THREE.GamepadControls = function ( object, domElement, targetObject ) {
+THREE.GamepadControls = function ( camera, domElement, targetObject ) {
 
 	var scope = this;
 
-	this.object = object;	//camera
+	this.object = camera;	//camera
 	this.targetObject = targetObject;  //targetObject
-	this.targetObject.name = 'target'
 	
 
 	this.target = targetObject.position;
 
-	this.controllers = {}; //contains all connected devices. Will only use the first one
+	var CONTROLLERS = {}; //contains all connected devices. Will only use the first one
 	
 	//unfortunately these mappings are gamepad vendor dependent, so check and update them before playing
-	this.buttons = { X: 0, A: 1, B: 2, Y: 3, LB: 4, RB: 5, LT: 6, RT: 7, BACK: 8, START: 9, 
+	//You can check them here: 
+
+	var BUTTONS = { X: 0, A: 1, B: 2, Y: 3, LB: 4, RB: 5, LT: 6, RT: 7, BACK: 8, START: 9, 
 				   LEFT_JOYSTICK_PUSH: 10, RIGHT_JOYSTICK_PUSH: 11, LEFT_JOYSTICK_UP: 12, 
 				   LEFT_JOYSTICK_DOWN: 13, LEFT_JOYSTICK_LEFT: 14, LEFT_JOYSTICK_RIGHT: 15 };
 	
-	this.axes = {CROSS_X: 1, CROSS_Y: 2, RIGHT_JOYSTICK_X: 3, RIGHT_JOYSTICK_Y: 4};
+	var AXES = {CROSS_X: 1, CROSS_Y: 2, RIGHT_JOYSTICK_X: 3, RIGHT_JOYSTICK_Y: 4};
 
+	var ACTIONS = {THRUST_UP: 'RT', THRUST_DOWN: 'RB', ROLL: 'CROSS_X', PITCH: 'CROSS_Y', CAMERA_X: 'RIGHT_JOYSTICK_X',
+				CAMERA_Y: 'RIGHT_JOYSTICK_Y', SHOOT_LASER: 'A', SHOOT_PROTON: 'B'}
+
+
+	var CAMERAS = {CHASE:0, STATIC: 1, ORBIT: 2};
 
 	//
 	this.domElement = ( domElement !== undefined ) ? domElement : document;
@@ -33,7 +39,7 @@ THREE.GamepadControls = function ( object, domElement, targetObject ) {
 	this.thrust = 0.0;
 	this.thrustDelta = 5.0; 	
 	this.maxThrust = 100.0;
-	this.maxSpeed = 100.0;
+	this.maxSpeed = 15;
 
 	this.pitch = 0;
 	this.roll = 0;
@@ -99,16 +105,16 @@ THREE.GamepadControls = function ( object, domElement, targetObject ) {
 	})();
 	*/
 
-	this.addGamepad = function( gamepad ){	
+	function addGamepad ( gamepad ){	
 		console.log("Adding gamepad to controllers index %d ", gamepad.index);
-		scope.controllers[gamepad.index] = gamepad;
-	};
+		CONTROLLERS[gamepad.index] = gamepad;
+	}
 	
-	this.connectHandler = function(gamepad){
-		scope.scanGamepads();		
+	function connectHandler (gamepad){
+		scanGamepads();		
 	}	
 
-	this.scanGamepads = function() {
+	function scanGamepads () {
   		var gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads() : []);
 		console.log ("There are %d gamepads detected.", gamepads.length );
 		  
@@ -118,26 +124,26 @@ THREE.GamepadControls = function ( object, domElement, targetObject ) {
 
 		for (var i = 0; i < gamepads.length; i++) {
 			if (gamepads[i]) {
-			  if (gamepads[i].index in scope.controllers) {			  	
-			    scope.controllers[gamepads[i].index] = gamepads[i];		
+			  if (gamepads[i].index in CONTROLLERS) {			  	
+			    CONTROLLERS[gamepads[i].index] = gamepads[i];		
 			    console.log( "Added gamepad %d to controller index %d", gamepads[i].index, i);	    
 			  } else {      	
-			  	scope.addGamepad( gamepads[i] );			    
+			  	addGamepad( gamepads[i] );			    
 			  }
 			}
 		}
-	};
-
-	this.disconnectHandler=function(e) {
-		console.log( "Disconnecting gamepad " + e.gamepad.index);
-  		this.removeGamepad(e.gamepad);
-  	}
-
-	this.removegamepad = function(gamepad) {
- 		 delete controllers[gamepad.index];
 	}
 
-  	this.updateStatus = function() {	  
+	function disconnectHandler(e) {
+		console.log( "Disconnecting gamepad " + e.gamepad.index);
+  		removeGamepad(e.gamepad);
+  	}
+
+	function removegamepad(gamepad) {
+ 		 delete CONTROLLERS[gamepad.index];
+	}
+
+  	function updateStatus () {	  
 	  //me.scanGamepads();
 	  this.lastState = this.currentState;
 	  var i = 0;
@@ -151,8 +157,8 @@ THREE.GamepadControls = function ( object, domElement, targetObject ) {
 
 	  //console.log(" num controllers " + controllers.length );
 
-	  for (var j=0; j< this.controllers.length; j++) {
-	    var controller = this.controllers[j];
+	  for (var j=0; j< CONTROLLERS.length; j++) {
+	    var controller = CONTROLLERS[j];
 
 	    //buttons
 	    for (i = 0; i < controller.buttons.length; i++) {	      
@@ -180,23 +186,31 @@ THREE.GamepadControls = function ( object, domElement, targetObject ) {
 	  
 	}
 
+	this.shootLaser = function(){		
+		return scope.isButtonPressed( ACTIONS.SHOOT_LASER  );
+	}
+
+	this.shootProton = function(){
+		return scope.isButtonPressed( ACTIONS.SHOOT_PROTON );	
+	}
 
 
 	this.isButtonPressed = function ( button ){
-		if( !scope.controllers[0] ){
-			console.log( "No gamepad connected at index 0. Controllers " + scope.controllers[0] );
+		if( !CONTROLLERS[0] ){
+			console.log( "No gamepad connected at index 0. Controllers " + CONTROLLERS[0] );
 			return;
 		}
-		if( !scope.buttons.hasOwnProperty( button ) ){
+		if( !BUTTONS.hasOwnProperty( button ) ){
 			console.log( "No button named '" + button +"'" );
 			return;
 		}		
-		return scope.controllers[0].buttons[ scope.buttons[button] ].pressed;
+		return CONTROLLERS[0].buttons[ BUTTONS[button] ].pressed;
 	}
 
 	this.getButtonsMap = function(){
 		var ret = {} ;
-		for( var b in scope.buttons ){			
+		for( var b in BUTTONS ){		
+
 			if( scope.isButtonPressed(b) ){
 				ret[b] = true; 
 			}else{
@@ -209,7 +223,7 @@ THREE.GamepadControls = function ( object, domElement, targetObject ) {
 
 	this.getPressedButtons = function( ){
 		var ret = []
-		for( var b in scope.buttons){			
+		for( var b in BUTTONS){			
 			if( scope.isButtonPressed(b) ){
 				ret.push( b )
 			}
@@ -225,38 +239,38 @@ THREE.GamepadControls = function ( object, domElement, targetObject ) {
 
 
 	this.getRight_xAxis = function(){
-		if( scope.controllers[0] === undefined ){
+		if( CONTROLLERS[0] === undefined ){
 			return;
 		}
 
-		return scope.controllers[0].axes[ scope.axes.RIGHT_JOYSTICK_X ];
+		return CONTROLLERS[0].axes[ AXES.RIGHT_JOYSTICK_X ];
 	}
 
 	this.getRight_yAxis = function() {
-		if( scope.controllers[0] === undefined ){
+		if( CONTROLLERS[0] === undefined ){
 			return;
 		}
-		return scope.controllers[0].axes[ scope.axes.RIGHT_JOYSTICK_Y ];			
+		return CONTROLLERS[0].axes[ AXES.RIGHT_JOYSTICK_Y ];			
 	}
 
 	this.getCross_xAxis = function(){
-		if( scope.controllers[0] === undefined ){
+		if( CONTROLLERS[0] === undefined ){
 			return;
 		}
-		return scope.controllers[0].axes[ scope.axes.CROSS_X ];			
+		return CONTROLLERS[0].axes[ AXES.CROSS_X ];			
 	}
 
 	this.getCross_yAxis = function(){
-		if( scope.controllers[0] === undefined ){
+		if( CONTROLLERS[0] === undefined ){
 			return;
 		}
-		return scope.controllers[0].axes[ scope.axes.CROSS_Y ];				
+		return CONTROLLERS[0].axes[ AXES.CROSS_Y ];				
 	}
 
 
 	//
 
-	this.handleResize = function () {
+	function handleResize () {
 
 		if ( this.domElement === document ) {
 
@@ -265,8 +279,8 @@ THREE.GamepadControls = function ( object, domElement, targetObject ) {
 
 		} else {
 
-			this.viewHalfX = this.domElement.offsetWidth / 2;
-			this.viewHalfY = this.domElement.offsetHeight / 2;
+			this.viewHalfX = scope.domElement.offsetWidth / 2;
+			this.viewHalfY = scope.domElement.offsetHeight / 2;
 
 		}
 
@@ -276,22 +290,29 @@ THREE.GamepadControls = function ( object, domElement, targetObject ) {
 
 		if ( scope.enabled === false ) return;
 
+		var x = new THREE.Vector3( 1, 0, 0 );
+		var y = new THREE.Vector3( 0, 1, 0 );
+		var z = new THREE.Vector3( 0, 0, 1 );
 
-		scope.updateStatus();
 
-		//console.log ( "RT pressed --> " + this.isButtonPressed( "RT" ) );
+		updateStatus();
 
-		var pressed = scope.getButtonsMap();
+		//console.log ( "RT pressed --> " + this.isButtonPressed( "RT" ) );		
+
+		var pressed = this.getButtonsMap();
+
+		//console.log ( "RT pressed --> " + pressed[ ACTIONS.THRUST_UP ] );		
 
 		// SPEED
-		if( pressed["RT"]  && scope.thrust < scope.maxThrust){
+		if( pressed[ ACTIONS.THRUST_UP]  && scope.thrust < 100){
 			scope.thrust += scope.thrustDelta; 
-
+			console.log( scope.thrust );
 		}else if( pressed["RB"] && scope.thrust> -100){
 			scope.thrust -= scope.thrustDelta; 
 			if( scope.thrust <-100 ){
 				scope.thrust = -100.0;
 			}
+			console.log( scope.thrust );
 		}
 
 		if( scope.movementSpeed<scope.maxSpeed && pressed["RT"] ){
@@ -318,68 +339,28 @@ THREE.GamepadControls = function ( object, domElement, targetObject ) {
 
 
 		//ROTATION
-		var rollSpeed = scope.getCross_yAxis();
-		var pitchSpeed = scope.getCross_xAxis();
-
-
-
-		//console.log( "Pitch: " + pitch );
-		//console.log( "Roll: " + rollSpeed );		
-
-		if ( scope.heightSpeed ) {
-
-			var y = THREE.Math.clamp( this.object.position.y, this.heightMin, this.heightMax );
-			var heightDelta = y - this.heightMin;
-
-			this.autoSpeedFactor = delta * ( heightDelta * this.heightCoef );
-
-		} else {
-
-			this.autoSpeedFactor = 0.0;
-
+		var pitchSpeed = -scope.getCross_yAxis();
+		var rollSpeed = -scope.getCross_xAxis();
+		var actualPitchSpeed =3*delta*pitchSpeed; 
+		var actualRollSpeed = 10*delta*rollSpeed;
+		
+		//console.log( "actualRollSpeed " + actualRollSpeed);
+		if( Math.abs(pitchSpeed) >0.4){
+			scope.targetObject.rotateOnAxis(z, - actualPitchSpeed );
+		}
+		if( Math.abs(rollSpeed) >0.4){
+			scope.targetObject.rotateOnAxis(x, - actualRollSpeed );
 		}
 
-		var actualMoveSpeed = delta * scope.movementSpeed;
-		//console.log("actualMoveSpeed: " + actualMoveSpeed );
-
-
-		if ( this.moveForward || ( this.autoForward && ! this.moveBackward ) ) this.object.translateZ( - ( actualMoveSpeed + this.autoSpeedFactor ) );
-		if ( this.moveBackward ) this.object.translateZ( actualMoveSpeed );
-
-		if ( this.rotateLeft ) this.object.translateX( - actualMoveSpeed );
-		if ( this.rotateRight ) this.object.translateX( actualMoveSpeed );
-
-		if ( this.moveUp ) this.object.translateY( actualMoveSpeed );
-		if ( this.moveDown ) this.object.translateY( - actualMoveSpeed );
-
-		var actualLookSpeed = delta * this.lookSpeed;
-
-		if ( ! this.activeLook ) {
-
-			actualLookSpeed = 0;
-
+		if( pressed[ ACTIONS.THRUST_UP ] && scope.thrust<100){
+			scope.thrust += 5;
+			console.log( "Thrust up " + scope.thrust );
 		}
 
-		var verticalLookRatio = 1;
 
-		if ( this.constrainVertical ) {
-
-			verticalLookRatio = Math.PI / ( this.verticalMax - this.verticalMin );
-
-		}
-
-		this.lon += this.mouseX * actualLookSpeed;
-		if ( this.lookVertical ) this.lat -= this.mouseY * actualLookSpeed * verticalLookRatio;
-
-		this.lat = Math.max( - 85, Math.min( 85, this.lat ) );
-		this.phi = THREE.Math.degToRad( 90 - this.lat );
-
-		this.theta = THREE.Math.degToRad( this.lon );
-
-		if ( this.constrainVertical ) {
-
-			this.phi = THREE.Math.mapLinear( this.phi, 0, Math.PI, this.verticalMin, this.verticalMax );
-
+		if( pressed[  ACTIONS.THRUST_DOWN  ] && scope.thrust>0 ){
+			scope.thrust -= 5;
+			console.log( "Thrust down " + scope.thrust );
 		}
 
 		var targetPosition = scope.target,
@@ -389,20 +370,69 @@ THREE.GamepadControls = function ( object, domElement, targetObject ) {
 		targetPosition.y = position.y + 100 * Math.cos( this.phi );
 		targetPosition.z = position.z + 100 * Math.sin( this.phi ) * Math.sin( this.theta );
 		*/
+		var actualMoveSpeed = .01*scope.movementSpeed+  0.2*0.01*scope.thrust;
+		
+		if( actualMoveSpeed > this.maxSpeed )
+		{
+			actualMoveSpeed = this.maxSpeed 
+		}
+		if( actualMoveSpeed<0 ){
+			actualMoveSpeed = 0;
+		}
+		
 
-		scope.target.translateX = targetPosition.x + actualMoveSpeed;
+		//console.log( "MoveSpeed " + scope.movementSpeed);
+		//console.log( "actualMoveSpeed " + actualMoveSpeed);
+		//console.log( "targetObject.x " + scope.targetObject.position.x);
+		scope.targetObject.translateX(actualMoveSpeed);
+		
 
+		this.targetObject.matrixAutoUpdate= true;
+		this.targetObject.matrixWorldNeedsUpdate= true;
+		this.targetObject.updateMatrix();
+		this.targetObject.updateMatrixWorld ( true );
+		
 
+		chaseCamera();
+		//staticCamera();
+/*
 		if( scope.targetObject === undefined) {
 			scope.object.lookAt( targetPosition );
 		}else{
 			//this.object.lookAt( targetObject.geometry.centroid );
 			scope.object.lookAt( targetPosition );
-			//this.object.position = this.targetObject.geometry.centroid;
-			scope.object.position.z =  40;
+			//this.object.position = this.targetObject.geometry.centroid;			
 		}
+*/
 
-	};
+	}
+
+
+	function chaseCamera (){
+		var relativeCameraOffset = new THREE.Vector3(-50, 10, 0);
+
+		var cameraOffset = relativeCameraOffset.applyMatrix4( targetObject.matrixWorld );
+		var targetPosition = scope.targetObject.position;		
+
+		scope.object.lookAt( targetPosition );
+		scope.object.position.set( cameraOffset.x, cameraOffset.y, cameraOffset.z) ;
+		/*
+		this.object.x = cameraOffset.x;
+		this.object.y = cameraOffset.y;
+		this.object.z = cameraOffset.z;
+		*/
+		
+	}
+
+	function staticCamera (){
+
+		var targetPosition = targetObject.position;
+		
+		scope.object.lookAt( targetPosition );	
+		
+		
+	}
+
 
 	function contextmenu( event ) {
 
@@ -410,7 +440,7 @@ THREE.GamepadControls = function ( object, domElement, targetObject ) {
 
 	}
 
-	this.dispose = function() {
+	function dispose () {
 
 		this.domElement.removeEventListener( 'contextmenu', contextmenu, false );
 		/*
@@ -424,8 +454,8 @@ THREE.GamepadControls = function ( object, domElement, targetObject ) {
 	}
 
 		
-	var _onGamepadConnected = bind( this, this.connectHandler);
-	var _onGamepadDisconnected = bind( this, this.disconnectHandler);
+	var _onGamepadConnected = bind( this, connectHandler);
+	var _onGamepadDisconnected = bind( this, disconnectHandler);
 
 	this.domElement.addEventListener( 'contextmenu', contextmenu, false );
 /*
@@ -455,6 +485,6 @@ THREE.GamepadControls = function ( object, domElement, targetObject ) {
 
 	}
 
-	this.handleResize();
+	handleResize();
 
 };

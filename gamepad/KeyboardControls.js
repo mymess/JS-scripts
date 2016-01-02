@@ -28,8 +28,8 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 	this.activeLook = true;
 
 
-	this.shootLaser = false;
-	this.shootProton = false;
+	var shootLaser = false;
+	var shootProton = false;
 
 	this.heightSpeed = false;
 	this.heightCoef = 1.0;
@@ -51,7 +51,7 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 	this.theta = 0;
 
 
-	this.maxSpeed = 102.5;
+	this.maxSpeed = 1002.5;
 	this.thrust = 20;
 	this.thrustUp = false;
 	this.thrustDown = false;
@@ -76,7 +76,13 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 	}
 
 	//
+	this.shootLaser = function(){
+		return shootLaser;
+	}
 
+	this.shootProton = function(){
+		return shootProton;
+	}
 	this.handleResize = function () {
 
 		if ( this.domElement === document ) {
@@ -181,8 +187,8 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 			case 107: /*+*/ this.thrustUp = true; break;
 			case 109: /*-*/ this.thrustDown = true; break;
 
-			case 17: /*Ctrl*/ this.shootLaser = true; break;
-			case 32: /*Space*/ this.shootProton = true; break;
+			case 17: /*Ctrl*/ shootLaser = true; break;
+			case 32: /*Space*/ shootProton = true; break;
 
 
 		}
@@ -212,8 +218,8 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 			case 107: /*+*/ this.thrustUp = false; break;
 			case 109: /*-*/ this.thrustDown = false; break;
 
-			case 17: /*Ctrl*/ this.shootLaser = false; break;
-			case 32: /*Space*/ this.shootProton = false; break;
+			case 17: /*Ctrl*/ shootLaser = false; break;
+			case 32: /*Space*/ shootProton = false; break;
 
 		}
 
@@ -329,7 +335,9 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 		this.targetObject.matrixWorldNeedsUpdate= true;
 		this.targetObject.updateMatrix();
 		this.targetObject.updateMatrixWorld ( true );
-		this.chaseCamera();
+		
+		this.staticCamera();
+
 		this.object.matrixAutoUpdate= true;
 		this.object.matrixWorldNeedsUpdate= true;
 		this.object.updateMatrix();
@@ -378,8 +386,8 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 
 		this.object.lookAt( targetPosition );
 
-		this.object.position = targetPosition.copy();
-		this.object.position = this.object.position.sub( xWorld.multiplyScalar(-50) );
+		//this.object.position = targetPosition;
+		//this.object.position = this.object.position.sub( xWorld.multiplyScalar(-50) );
 	}
 
 

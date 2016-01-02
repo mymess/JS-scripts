@@ -13,17 +13,15 @@
   <script src="three.min.js"></script>
   <script src="stats.min.js"></script>
 
-  <!--
-  <script src="howler/howler.min.js"></script>  
-  -->
+  
   <script src="buzz/buzz.min.js"></script>  
   <script src="SoundController.js"></script>  
 
   <script src="OrbitControls.js"></script>
   <script src="KeyboardControls.js"></script>
-  <!--
+  
   <script src="GamepadControls.js"></script>
--->
+
   <script src="ColladaLoader.js"></script>
 
 
@@ -64,8 +62,8 @@
 
         } );
 
-        console.log( dae );
-        console.log( dae.children[0] );
+        //console.log( dae );
+        //console.log( dae.children[0] );
         var xwing = dae.children[0];
         //var centroid = calculateTargetCentroid( dae.children[0] );
 
@@ -78,7 +76,7 @@
 
         dae.translateX(0);
         dae.translateY(0);
-        dae.translateZ(1);
+        dae.translateZ(0);
         
         //dae.translateZ(5);
 
@@ -116,7 +114,7 @@
         document.body.appendChild( container );
 
         camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 2000 );
-        camera.position.set( 0, 25, 25 );
+        camera.position.set( 25, 25, 25 );
 
         scene = new THREE.Scene();
         //scene.fog = new THREE.FogExp2( 0x000000, 0.035 );
@@ -208,7 +206,7 @@
       }
 
       function render() {
-        dae.translateX(.1);        
+        //dae.translateX(.1);        
         controls.update(clock.getDelta());
         playSounds();
       
@@ -230,11 +228,11 @@
 
       function playSounds(){
 
-        if( controls.shootLaser ){
+        if( controls.shootLaser() ){
             sounds.playLaser();
         }
 
-        if( controls.shootProton ){
+        if( controls.shootProton() ){
             sounds.playProton();
         }
         
