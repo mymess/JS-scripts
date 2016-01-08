@@ -41,36 +41,46 @@ buildAxis = function ( src, dst, colorHex, dashed ) {
 
 THREE.Arc = function(a, b, radius){
 	var normal = new THREE.Vector3();
+	var z = new THREE.Vector3(0,0,1);
 
 	normal.crossVectors( a, b );
 	normal.normalize();
+	var dot = a.dot(b)/(a.length()*b.length())
 
-	var angle = Math.acos(a.normalize().dot(b.normalize()));
+	var angle = a.angleTo(b);
+
+
+	
+	if (dot <0 && b.y<=0 ){
+		//angle = 2*Math.PI-angle;
+	}else if( dot == 0){
+
+	}
 
 	var curve = new THREE.EllipseCurve(
 	    0, 0,             // ax, aY
 	    radius, radius,            // xRadius, yRadius
 	    0, angle, // aStartAngle, aEndAngle
-	    false             // aClockwise
+	    true             // aClockwise
 		);
 
-		var points = curve.getSpacedPoints( 20 );
+	var points = curve.getSpacedPoints( 20 );
 
-		var path = new THREE.Path();
-		geometry = path.createGeometry( points );
+	var path = new THREE.Path();
+	geometry = path.createGeometry( points );
 
-		material = new THREE.LineBasicMaterial( { color : 0xff0000, linewidth: 3 } );
+	material = new THREE.LineBasicMaterial( { color : 0xff0000, linewidth: 3 } );
 
-		var line = new THREE.Line( geometry, material );
-		var m = new THREE.Matrix4();
-		
-		var y = new THREE.Vector3(0,1,0);
-		var origin = new THREE.Vector3(0,0,0);
-		m.lookAt(normal, origin, y )
+	var line = new THREE.Line( geometry, material );
+	var m = new THREE.Matrix4();
+	
+	var y = new THREE.Vector3(0,1,0);
+	var origin = new THREE.Vector3(0,0,0);
+	m.lookAt(normal, origin, normal )
 
-		geometry.applyMatrix(m);
+	geometry.applyMatrix(m);
 
-		return line;
+	return line;
 }
 
 
@@ -180,8 +190,8 @@ require([], function(){
 		//scene.add( line );
 
 
-		var a = new THREE.Vector3(1,0,0);
-		var b = new THREE.Vector3(1,1,0);
+		var a = new THREE.Vector3(1, 0, 1);
+		var b = new THREE.Vector3(1, -1, 0);
 		scene.add(new THREE.Arc(a, b, radius));
 
 	//draw axes
