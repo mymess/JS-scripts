@@ -23,11 +23,14 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
         COMMA: 188, PERIOD: 190, SLASH: 191, BACK_QUOTE: 192, OPEN_BRACKET: 219, BACK_SLASH: 220, CLOSE_BRACKET: 221,
         QUOTE: 222, META: 224
     };
-    var keyMap = {};
+    var KeyMap = {};
 
     for(var i=1; i<225; ++i){
-    	keyMap[i] = false;
+    	KeyMap[i] = false;
     }
+
+    var Actions = {PITCH_DOWN: 'UP', PITCH_UP: 'DOWN', ROLL_LEFT: 'LEFT', ROLL_RIGHT: 'RIGHT', SHOOT_LASER: 'CONTROL', SHOOT_PROTON: 'SPACE' }
+
 
 	this.domElement = ( domElement !== undefined ) ? domElement : document;
 
@@ -183,7 +186,7 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 		event.preventDefault();
 		event.stopPropagation();
 
-		keyMap[ event.keyCode ] = true;
+		KeyMap[ event.keyCode ] = true;
 
 		switch ( event.keyCode ) {
 
@@ -216,7 +219,7 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 	this.onKeyUp = function ( event ) {
 		event.preventDefault();
 
-		keyMap[ event.keyCode ] = false;
+		KeyMap[ event.keyCode ] = false;
 
 		switch ( event.keyCode ) {
 
@@ -273,21 +276,21 @@ THREE.KeyboardControls = function ( object, domElement, targetObject ) {
 		
 		var actualPitchSpeed = delta * this.pitchSpeed;
 		var actualRollSpeed = delta * this.rollSpeed;
-
-		if ( this.pitchDown ) {
+		if( KeyMap[ KeyCodes[ Actions.PITCH_DOWN ] ] ){
+		
 			this.targetObject.rotateOnAxis(z, - actualPitchSpeed );
 		}
-		if ( this.pitchUp ) {
+		if( KeyMap[ KeyCodes[ Actions.PITCH_UP ] ] ){
 			this.targetObject.rotateOnAxis(z, actualPitchSpeed );
 		}
-		if ( this.moveLeft ) {
+		if( KeyMap[ KeyCodes[ Actions.ROLL_LEFT ] ] ){
 			this.targetObject.rotateOnAxis(x, - actualRollSpeed );
 		}
-		if ( this.moveRight ) {
+		if( KeyMap[ KeyCodes[ Actions.ROLL_RIGHT ] ] ){
 			this.targetObject.rotateOnAxis(x, actualRollSpeed );
 		}
 
-		if( this.thrustUp && this.thrustUp<100){
+		if( this.thrustUp && this.thrust<100){
 			this.thrust += 5;
 		}
 
